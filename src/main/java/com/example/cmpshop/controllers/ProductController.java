@@ -3,7 +3,6 @@ package com.example.cmpshop.controllers;
 
 import com.example.cmpshop.dto.ProductDto;
 import com.example.cmpshop.services.IProductService;
-import io.micrometer.common.util.StringUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,11 +25,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/search")
-public class SearchController {
+public class ProductController {
     private final IProductService iProductService;
 
     @Autowired
-    public SearchController(IProductService iProductService) {
+    public ProductController(IProductService iProductService) {
 
         this.iProductService = iProductService;
     }
@@ -40,7 +39,7 @@ public class SearchController {
             description = "Search product list based on option such as slug, brand , price and year. Returned products are paginated.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = SearchController.class)) }),
+                    schema = @Schema(implementation = ProductController.class)) }),
             @ApiResponse(responseCode = "404", description = "Products not found",
                     content = @Content) })
     @GetMapping()
@@ -65,7 +64,7 @@ public class SearchController {
               description = "Search product list based on category id, category type id, status and address. Returned products are paginated.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = SearchController.class)) }),
+                    schema = @Schema(implementation = ProductController.class)) }),
             @ApiResponse(responseCode = "404", description = "Products not found",
                     content = @Content) })
     @GetMapping("/advanced")
