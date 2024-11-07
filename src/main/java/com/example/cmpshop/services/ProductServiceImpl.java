@@ -35,13 +35,11 @@ public class ProductServiceImpl implements IProductService {
     private double minPriceLimit = AppConfig.MIN_PRICE_LIMIT;
 
     private double maxPriceLimit = AppConfig.MAX_PRICE_LIMIT;
-
+    // lọc sản  phẩm với các bộ Specification, phân trang và sắp xếp
     @Override
     public Page<ProductDto> filterProducts(String slug, Long brandId, Double minPrice, Double maxPrice, Integer minYear, Integer maxYear, Pageable pageable) {
-
         //check invalid and range for param
-        checkNoParamsForBasicSearch(slug,brandId,minPrice, maxPrice,minYear, maxYear);
-
+        checkNoParamsForBasicSearch(slug, brandId, minPrice, maxPrice, minYear, maxYear);
         // Truy vấn động với Specification
         Specification<Product> productSpecification = Specification.where(null);
         if (null != slug) {

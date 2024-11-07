@@ -8,10 +8,11 @@ import java.util.List;
 
 @Component
 public class ProductMapper {
-
+    // get danh sách product DTO dưới dạng list
     public List<ProductDto> getProductDtos(List<Product> products) {
         return products.stream().map(this::mapToProductDTO).toList();
     }
+    //  using builder to map productDTO
     public ProductDto mapToProductDTO(Product product) {
         return ProductDto.builder()
                 .id(product.getId())

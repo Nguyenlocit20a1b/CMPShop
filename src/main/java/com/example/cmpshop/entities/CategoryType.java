@@ -28,5 +28,5 @@ public class CategoryType {
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     @JsonIgnore
-    private Category category;
+    private Category category; // Join với bảng category n-> 1
 }

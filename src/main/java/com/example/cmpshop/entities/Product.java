@@ -22,36 +22,36 @@ public class Product {
     @GeneratedValue
     private Long id;
     @Column(nullable = false)
-    private String name;
-    @Column(nullable = false,unique = true)
-    private String slug;
+    private String name;// name product
+    @Column(nullable = false, unique = true)
+    private String slug;// slug product
     @Column
-    private String description;
+    private String description; // mô tả
     @Column(nullable = false)
-    private BigDecimal price ;
+    private BigDecimal price; // giá  máy
     @Column(nullable = false)
-    private String address ;
-    private String yearOfManufacture ;
-    private int usageTime;
-    private String model;
-    private String serial;
+    private String address;// địa chỉ máy
+    private String yearOfManufacture; // năm sản xuất
+    private int usageTime;  // thời gian sử dụng
+    private String model; // model máy
+    private String serial; // serial máy
     @Column(nullable = false)
     private Boolean status; // trạng thái thiết bị
     @Column(nullable = false)
-    private Boolean isActive; // trạng thái thiết bị
+    private Boolean isActive; // trạng thái tin
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     @JsonIgnore
-    private Category category;
+    private Category category; // Join với bảng Category n-> 1
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoryType_id", nullable = false)
     @JsonIgnore
-    private CategoryType categoryType;
+    private CategoryType categoryType; // Join với bảng CategoryType  n-> 1
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id", nullable = false)
     @JsonIgnore
-    private Brand brand;
-    @Column(nullable = false , updatable = false)
+    private Brand brand; // Join với bảng brand  n-> 1
+    @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createAt;
     @Column(nullable = false)

@@ -11,6 +11,7 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundEx.class)
+    //Ex Not Found Resource
     public ResponseEntity<Map<String, Object>> handleResourceNotFoundEx(ResourceNotFoundEx resourceEx) {
         Map<String, Object> errorDetails = new HashMap<>();
         errorDetails.put("timestamp", LocalDateTime.now());
@@ -20,6 +21,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
     @ExceptionHandler(InvalidParameterException.class)
+    //Ex Not Found Invalid Parameter
     public  ResponseEntity<Map<String, Object>> handingInvalidParam(InvalidParameterException invalidEx){
         Map<String, Object> errorDetails = new HashMap<>();
         errorDetails.put("timestamp", LocalDateTime.now());
@@ -29,11 +31,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(InvalidRangeException.class)
+    //Ex Not Found Invalid Range
     public ResponseEntity<Map<String, Object>> handleInvalidRangeEx(InvalidRangeException invalidEx) {
         Map<String, Object> errorDetails = new HashMap<>();
         errorDetails.put("timestamp", LocalDateTime.now());
         errorDetails.put("status", HttpStatus.BAD_REQUEST.value());
-        errorDetails.put("error", "Invalid Range Err");
+        errorDetails.put("error", "Invalid Parameter");
         errorDetails.put("message", invalidEx.getMessage());
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }

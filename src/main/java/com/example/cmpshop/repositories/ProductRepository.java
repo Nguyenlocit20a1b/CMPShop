@@ -15,6 +15,7 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product>{
     @Procedure(name = "searchProductsCategoryStatusAddress")
     @Transactional()
+    // Using Transactional to call Procedure
     List<Product> searchProductsCategoryStatusAddress(
             @Param("p_category_id") Long categoryId,
             @Param("p_category_type_id") Long categoryTypeId,

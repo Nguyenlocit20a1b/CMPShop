@@ -22,14 +22,13 @@ public class ProductDto {
     private String serial;
     private Boolean status;
     private Boolean isActive;
-    private  int usageTime;
-    private  String yearOfManufacture;
+    private int usageTime; // thời gian sử dụng
+    private String yearOfManufacture; // năm sản xuất
     private Long brandId;
-    private String origin;
-
-    private String brandName ;
-    private Long categoryId ;
-    private String categoryName ;
-    private Long categoryTypeId ;
-    private String categoryTypeName ;
+    private String origin; // xuất xứ
+    private String brandName;
+    private Long categoryId;
+    private String categoryName;// loại
+    private Long categoryTypeId;
+    private String categoryTypeName;// phân loại
 }

@@ -27,21 +27,24 @@ import java.util.List;
 @RequestMapping("api/search")
 public class ProductController {
     private final IProductService iProductService;
-
+    //  ko cần phải khởi tạo IProductService
     @Autowired
     public ProductController(IProductService iProductService) {
-
         this.iProductService = iProductService;
     }
 
-    @Tag(name = "get", description = "Get methods of filter products with options for APIs ")
+    @Tag(name = "search product ", description = "Get methods of filter products with options for APIs ")
     @Operation(summary = "Search products",
             description = "Search product list based on option such as slug, brand , price and year. Returned products are paginated.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = ProductController.class)) }),
+            @ApiResponse(responseCode = "200", description = "Get success ", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ProductController.class))}),
             @ApiResponse(responseCode = "404", description = "Products not found",
-                    content = @Content) })
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "Invalid Parameter",
+                    content = @Content)
+    })
+    // filter Product With Options on Params
     @GetMapping()
     public ResponseEntity<?> filterProductWithOptions(
             @RequestParam(required = false) String slug,
@@ -60,13 +63,19 @@ public class ProductController {
         Page<ProductDto> productPage = iProductService.filterProducts(slug, brandId, minPrice, maxPrice, minYear, maxYear, pageable);
         return new ResponseEntity<>(productPage, HttpStatus.OK);
     }
+
+    @Tag(name = "search product advanced", description = "Get methods of filter products with options for APIs ")
     @Operation(summary = "Search advanced",
-              description = "Search product list based on category id, category type id, status and address. Returned products are paginated.")
+            description = "Search product list based on category id, category type id, status and address. Returned products are paginated.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = ProductController.class)) }),
+            @ApiResponse(responseCode = "200", description = "Get success ", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ProductController.class))}),
             @ApiResponse(responseCode = "404", description = "Products not found",
-                    content = @Content) })
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "Invalid Parameter",
+                    content = @Content)
+    })
+    // filter Product  advanced with category,categoryType, status. address
     @GetMapping("/advanced")
     public ResponseEntity<?> getProductListWithCategoryStatusAndAddress(
             @RequestParam(required = false) Long categoryId,

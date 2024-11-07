@@ -24,5 +24,5 @@ public class Brand {
     private String code;
     private String description;
     @Column(nullable = false)
-    private String origin;
+    private String origin; // xuất sứ
 }

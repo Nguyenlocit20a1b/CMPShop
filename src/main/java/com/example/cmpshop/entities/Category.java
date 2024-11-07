@@ -27,6 +27,6 @@ public class Category {
     @Column(nullable = false)
     private String description;
     @OneToMany(mappedBy = "category" , cascade =  CascadeType.ALL)
-    private List<CategoryType> categoryTypes;
+    private List<CategoryType> categoryTypes; // Join với bảng product 1-> n
 
 }
