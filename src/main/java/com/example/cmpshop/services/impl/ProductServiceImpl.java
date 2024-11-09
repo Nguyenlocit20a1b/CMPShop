@@ -5,18 +5,15 @@ import com.example.cmpshop.exceptions.InvalidParameterException;
 import com.example.cmpshop.exceptions.InvalidRangeException;
 import com.example.cmpshop.specifications.ProductSpecifications;
 import com.example.cmpshop.dto.ProductDto;
-import com.example.cmpshop.entities.Product;
+import com.example.cmpshop.entities.ProductEntity;
 import com.example.cmpshop.exceptions.ResourceNotFoundEx;
 import com.example.cmpshop.mapper.ProductMapper;
 import com.example.cmpshop.repositories.ProductRepository;
 import io.micrometer.common.util.StringUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +38,10 @@ public class ProductServiceImpl implements IProductService {
         //check invalid and range for param
         checkNoParamsForBasicSearch(slug, brandId, minPrice, maxPrice, minYear, maxYear);
         // Truy vấn động với Specification
-        Specification<Product> productSpecification = Specification.where(null);
+        Specification<ProductEntity> productSpecification = Specification.where(null);
+        if(slug == null){
+            throw new ResourceNotFoundEx("No products found with the given keyword !");
+        }
         if (null != slug) {
             productSpecification = productSpecification.and(ProductSpecifications.hasSlug(slug));
         }
@@ -54,9 +54,9 @@ public class ProductServiceImpl implements IProductService {
         if (null != minYear && null != maxYear) {
             productSpecification = productSpecification.and(ProductSpecifications.hasYearOfManufacture(minYear, maxYear));
         }
-        Page<Product> products = productRepository.findAll(productSpecification, pageable);
+        Page<ProductEntity> products = productRepository.findAll(productSpecification, pageable);
 
-        if (products.isEmpty() || slug == null) {
+        if (products.isEmpty()) {
             throw new ResourceNotFoundEx("No products found with the given keyword !");
         }
         return products.map(productMapper::mapToProductDTO);
@@ -66,7 +66,7 @@ public class ProductServiceImpl implements IProductService {
     public List<ProductDto> getProductByCategoryStatusAndAddress(Long categoryId, Long categoryTypeId, Boolean status, String address) {
         //check param
         checkNoParamsForAdvancedSearch(categoryId, categoryTypeId, status, address);
-        List<Product> products = productRepository.searchProductsCategoryStatusAddress(categoryId, categoryTypeId, status, address);
+        List<ProductEntity> products = productRepository.searchProductsCategoryStatusAddress(categoryId, categoryTypeId, status, address);
         if (products == null || products.isEmpty()) {
             throw new ResourceNotFoundEx("No products found with the given keyword !");
         }
