@@ -1,19 +1,23 @@
 package com.example.cmpshop.mapper;
 
 import com.example.cmpshop.dto.ProductDto;
-import com.example.cmpshop.entities.Product;
+import com.example.cmpshop.entities.ProductEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * This allows ProductMapper to be autowired into other Spring components, such as service classes.
+ *Typically, a mapper class is used to transform data  {@link ProductDto} and data models {@link ProductEntity} in the application.
+ **/
 @Component
 public class ProductMapper {
     // get danh sách product DTO dưới dạng list
-    public List<ProductDto> getProductDtos(List<Product> products) {
+    public List<ProductDto> getProductDtos(List<ProductEntity> products) {
         return products.stream().map(this::mapToProductDTO).toList();
     }
     //  using builder to map productDTO
-    public ProductDto mapToProductDTO(Product product) {
+    public ProductDto mapToProductDTO(ProductEntity product) {
         return ProductDto.builder()
                 .id(product.getId())
                 .name(product.getName())

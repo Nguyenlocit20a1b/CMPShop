@@ -8,6 +8,10 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+/** The @ControllerAdvice annotation defines a global exception handler for all controllers.
+* This allows for centralized exception handling across the application, where all controllers
+ can share a common approach to handling errors.
+* With this approach, we can return consistent error responses and handle specific exceptions in one place. **/
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundEx.class)
