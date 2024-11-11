@@ -27,7 +27,7 @@ import java.util.TimeZone;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductEntity  extends BaseEntity{
+public class ProductEntity extends BaseEntity {
     @Id
     @GeneratedValue
     private Long id;
@@ -43,12 +43,13 @@ public class ProductEntity  extends BaseEntity{
     private String description; // mô tả
     @Column(nullable = false)
     @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0") // Giá phải lớn hơn 0
-    @Digits(integer = 10, fraction = 2, message = "Price must be a valid monetary amount with up to 10 digits and 2 decimal places") // Định dạng số
+    @Digits(integer = 10, fraction = 2, message = "Price must be a valid monetary amount with up to 10 digits and 2 decimal places")
+    // Định dạng số
     private BigDecimal price; // giá  máy
     @Column(nullable = false)
     private String address;// địa chỉ máy
     @Min(value = AppConfig.MIN_YEAR, message = "Year of manufacture must be no earlier than" + AppConfig.MIN_YEAR)
-    @Max(value = 2024 , message = "Year of manufacture must be no later than 2024")
+    @Max(value = 2024, message = "Year of manufacture must be no later than 2024")
     private String yearOfManufacture; // năm sản xuất
     private int usageTime;  // thời gian sử dụng
     private String model; // model máy

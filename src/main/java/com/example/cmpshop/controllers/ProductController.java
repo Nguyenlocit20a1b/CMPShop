@@ -1,8 +1,7 @@
 package com.example.cmpshop.controllers;
 
 
-import com.example.cmpshop.config.DeviceStatus;
-import com.example.cmpshop.dto.ProductDto;
+import com.example.cmpshop.dtos.ProductDto;
 import com.example.cmpshop.services.IProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

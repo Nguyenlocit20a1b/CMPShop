@@ -1,7 +1,6 @@
 package com.example.cmpshop.services;
 
-import com.example.cmpshop.config.DeviceStatus;
-import com.example.cmpshop.dto.ProductDto;
+import com.example.cmpshop.dtos.ProductDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

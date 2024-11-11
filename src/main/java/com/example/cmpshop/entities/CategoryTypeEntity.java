@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 /**
  * Entity representing a Category Type in the system.
  * Maps to the 'category_type' table in the database.
@@ -23,7 +24,7 @@ import lombok.NoArgsConstructor;
 public class CategoryTypeEntity {
     @Id
     @GeneratedValue
-    private Long id ;
+    private Long id;
     @NotBlank(message = "Category Type name cannot be blank")
     @Size(max = 100, message = "Category Type name must not exceed 100 characters")
     @Column(nullable = false)

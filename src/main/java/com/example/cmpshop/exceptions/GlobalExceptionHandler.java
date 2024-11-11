@@ -44,6 +44,15 @@ public class GlobalExceptionHandler {
         errorDetails.put("message", invalidEx.getMessage());
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler(DataAccessException.class)
+    public  ResponseEntity<Map<String, Object>> handingDataAccess(DataAccessException dataAccessException) {
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("timestamp", LocalDateTime.now());
+        errorDetails.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        errorDetails.put("error", "Data Access Exception");
+        errorDetails.put("message", dataAccessException.getMessage());
+        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
 }
 

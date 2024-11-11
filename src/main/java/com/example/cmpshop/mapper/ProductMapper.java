@@ -1,6 +1,6 @@
 package com.example.cmpshop.mapper;
 
-import com.example.cmpshop.dto.ProductDto;
+import com.example.cmpshop.dtos.ProductDto;
 import com.example.cmpshop.entities.ProductEntity;
 import org.springframework.stereotype.Component;
 

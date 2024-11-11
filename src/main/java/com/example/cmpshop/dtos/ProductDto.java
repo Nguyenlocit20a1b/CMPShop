@@ -1,4 +1,4 @@
-package com.example.cmpshop.dto;
+package com.example.cmpshop.dtos;
 
 import com.example.cmpshop.config.DeviceStatus;
 import lombok.AllArgsConstructor;
