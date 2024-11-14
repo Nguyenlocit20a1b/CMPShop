@@ -38,7 +38,6 @@ public class ProductServiceImpl implements IProductService {
     private double minPriceLimit = AppConfig.MIN_PRICE_LIMIT;
 
     private double maxPriceLimit = AppConfig.MAX_PRICE_LIMIT;
-    // lọc sản  phẩm với các bộ Specification, phân trang và sắp xếp
 
     /**
      * Filters products based on optional criteria such as slug, brand ID, price range, and production year range,

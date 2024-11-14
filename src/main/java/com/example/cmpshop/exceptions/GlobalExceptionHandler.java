@@ -2,6 +2,7 @@ package com.example.cmpshop.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.time.LocalDateTime;
@@ -53,6 +54,23 @@ public class GlobalExceptionHandler {
         errorDetails.put("message", dataAccessException.getMessage());
         return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
+    @ExceptionHandler(UnauthorizedException.class)
+    public  ResponseEntity<Map<String, Object>> handingUnauthorized(UnauthorizedException unauthorizedException) {
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("timestamp", LocalDateTime.now());
+        errorDetails.put("status", HttpStatus.UNAUTHORIZED.value());
+        errorDetails.put("error", "Data Access Exception");
+        errorDetails.put("message", unauthorizedException.getMessage());
+        return new ResponseEntity<>(errorDetails, HttpStatus.UNAUTHORIZED);
+    }
+    @ExceptionHandler(AuthenticationFailedException.class)
+    public  ResponseEntity<Map<String, Object>> handingUnauthorized(AuthenticationFailedException authenticationFailedException) {
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("timestamp", LocalDateTime.now());
+        errorDetails.put("status", HttpStatus.UNAUTHORIZED.value());
+        errorDetails.put("error", "Data Access Exception");
+        errorDetails.put("message", authenticationFailedException .getMessage());
+        return new ResponseEntity<>(errorDetails, HttpStatus.UNAUTHORIZED);
+    }
 }
 
