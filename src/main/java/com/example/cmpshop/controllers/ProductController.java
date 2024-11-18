@@ -29,7 +29,7 @@ import java.util.List;
  * to interact with the service layer {@link IProductService}.
  * response (http code, message, data)**/
 @RestController
-@RequestMapping("api/search")
+@RequestMapping("api/public/search")
 public class ProductController {
     private final IProductService iProductService;
     //  ko cần phải khởi tạo IProductService
