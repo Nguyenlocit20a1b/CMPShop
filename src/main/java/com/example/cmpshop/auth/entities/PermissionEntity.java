@@ -31,5 +31,6 @@ public class PermissionEntity {
     private  Long id ;
     @Column(nullable = false, unique = true)
     private String name;
-    private String description;
+    private String method;
+    private String endPoint;
 }

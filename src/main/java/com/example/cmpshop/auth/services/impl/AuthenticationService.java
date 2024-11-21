@@ -4,17 +4,20 @@ import com.example.cmpshop.auth.config.JWTTokenHelper;
 import com.example.cmpshop.auth.dto.request.RegisterRequest;
 import com.example.cmpshop.auth.dto.response.RegisterResponse;
 import com.example.cmpshop.auth.dto.response.UserToken;
-import com.example.cmpshop.auth.entities.ProviderTypes;
+import com.example.cmpshop.auth.entities.ProviderEnum;
 import com.example.cmpshop.auth.entities.UserEntity;
 import com.example.cmpshop.auth.helper.VerificationCodeGenerator;
 import com.example.cmpshop.auth.reponsitory.UserDetailRepository;
 import com.example.cmpshop.auth.services.IAuthenticationService;
+import com.example.cmpshop.convertor.AsymmetricEncryption;
 import com.example.cmpshop.exceptions.AuthenticationFailedException;
 import com.example.cmpshop.exceptions.ResourceNotFoundEx;
 import com.example.cmpshop.exceptions.UnauthorizedException;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,10 +25,20 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerErrorException;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 
 @Service
 public class AuthenticationService implements IAuthenticationService {
     private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
+    @Value("${keystorePath}")
+    private String keystorePath;
+    @Value("${keystorePassword}")
+    private String keystorePassword;
+    private PublicKey publicKey;
+    private PrivateKey privateKey;
+
     @Autowired
     AuthenticationManager authenticationManager;
     @Autowired
@@ -38,6 +51,12 @@ public class AuthenticationService implements IAuthenticationService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private AuthorizationService authorityService;
+    @PostConstruct
+    public void initializeKeys() throws Exception {
+        KeyPair keyPair = AsymmetricEncryption.generateRsaKeyPair();
+        this.publicKey = keyPair.getPublic();
+        this.privateKey = keyPair.getPrivate();
+    }
 
     /**
      * Xác thực người dùng bằng username và password, đồng thời sinh token JWT nếu xác thực thành công.
@@ -83,39 +102,46 @@ public class AuthenticationService implements IAuthenticationService {
     public RegisterResponse createUser(RegisterRequest request) {
         UserEntity userExisting = userDetailRepository.findByEmail(request.getEmail());
         if (null != userExisting) {
-            return RegisterResponse.builder()
-                    .code(400)
-                    .message("Email already exist!")
-                    .build();
+            log.warn("Tài khoản đã tồn tại với email: {}", request.getEmail());
+            throw new UnauthorizedException("Tài khoản đã tồn tại");
         }
         try {
+            // Encrypt email
+            String encryptedEmail = AsymmetricEncryption.encrypt(request.getEmail(), publicKey);
+            // Generate email signature
+            String emailSignature = AsymmetricEncryption.signData(request.getEmail(), privateKey);
+
             String code = VerificationCodeGenerator.generateCode();
             log.info("Generated verification code: {}", code);
             UserEntity user = UserEntity.builder()
                     .firstName(request.getFirstName())
                     .lastName(request.getLastName())
-                    .email(request.getEmail())
+                    .email(encryptedEmail) // Store encrypted email
+                    .emailSignature(emailSignature) // Store email signature
                     .phoneNumber(request.getPhoneNumber())
                     .password(passwordEncoder.encode(request.getPassword()))
                     .verificationCode(code)
-                    .provider(ProviderTypes.MANUAL)
+                    .provider(ProviderEnum.MANUAL)
                     .enabled(false)
                     .authorities(authorityService.getUserAuthority())
                     .build();
+
             // save user
             userDetailRepository.save(user);
-            // Call method to send  email
+            // Call method to send email
             emailService.sendMail(user);
             return RegisterResponse.builder()
-                    .code(200)
-                    .message("User created !")
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
+                    .email(decryptUserEmail(user)) // Return original email
+                    .phoneNumber(user.getPhoneNumber())
+                    .enabled(user.isEnabled())
                     .build();
         } catch (Exception e) {
             log.error("Error creating account");
             throw new ServerErrorException(e.getMessage(), e.getCause());
         }
     }
-
     /**
      * Kích hoạt tài khoản người dùng bằng cách xác minh email.
      *
@@ -132,4 +158,9 @@ public class AuthenticationService implements IAuthenticationService {
         userDetailRepository.save(user);
         log.info("Tài khoản với email {} đã được kích hoạt thành công", userName);
     }
+    // Method to decrypt email when needed
+    public String decryptUserEmail(UserEntity user) throws Exception {
+        return AsymmetricEncryption.decrypt(user.getEmail(), privateKey);
+    }
+
 }

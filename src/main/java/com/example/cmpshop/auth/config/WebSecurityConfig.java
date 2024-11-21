@@ -1,5 +1,7 @@
 package com.example.cmpshop.auth.config;
 
+import com.example.cmpshop.auth.entities.PermissionEntity;
+import com.example.cmpshop.auth.reponsitory.PermissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,22 +19,26 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
-    @Autowired
-    private UserDetailsService userDetailsService;
-
-    @Autowired
-    private JWTTokenHelper jwtTokenHelper;
     // danh sach url public
-    private final String [] publicApis = {
+    private final String[] publicApis = {
             "/v3/api-docs/**",
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/api/public/**",
             "/api/auth/**",
     };
+    @Autowired
+    private UserDetailsService userDetailsService;
+    @Autowired
+    private PermissionRepository permissionRepository;
+    @Autowired
+    private JWTTokenHelper jwtTokenHelper;
+
     /**
      * Cấu hình bảo mật cho ứng dụng, xác định cách thức xử lý các yêu cầu HTTP.
      * - Tắt CSRF.
@@ -45,21 +51,31 @@ public class WebSecurityConfig {
      * @throws Exception nếu có lỗi khi cấu hình bảo mật.
      */
     @Bean
-    public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        List<PermissionEntity> permissionEntities = permissionRepository.findAll();
         http
                 .csrf(csrf -> csrf.disable())
                 .authenticationManager(authenticationManager())
-                .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers(HttpMethod.GET, "/api/user/**").hasAnyAuthority("USER_READ_PRIVILEGE","ADMIN_READ_PRIVILEGE")
-                        .requestMatchers(HttpMethod.GET, "/api/admin/**").hasAnyAuthority("ADMIN_READ_PRIVILEGE")
-                        .requestMatchers(HttpMethod.POST, "/api/admin/**").hasAnyAuthority("ADMIN_WRITE_PRIVILEGE")
-                        .requestMatchers(HttpMethod.PUT, "/api/admin/**").hasAnyAuthority("ADMIN_WRITE_PRIVILEGE")
-                        .requestMatchers(HttpMethod.DELETE, "/api/admin/**").hasAnyAuthority("ADMIN_DELETE_PRIVILEGE")
-                        .anyRequest().authenticated())
-                        .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                        .addFilterBefore(new JWTAuthenticationFilter(jwtTokenHelper , userDetailsService), UsernamePasswordAuthenticationFilter.class);
+                // Ánh xạ quyền dựa trên permissions từ cơ sở dữ liệu
+                .authorizeHttpRequests(auth -> {
+                    permissionEntities.forEach(permissionEntity -> {
+                        try {
+                            HttpMethod httpMethod = HttpMethod.valueOf(permissionEntity.getMethod());
+                            auth.requestMatchers(httpMethod, permissionEntity.getEndPoint())
+                                    .hasAuthority(permissionEntity.getName());
+                        } catch (IllegalArgumentException e) {
+                            // Ghi log nếu method không hợp lệ
+                            System.err.println("Invalid HTTP method: " + permissionEntity.getMethod());
+                        }
+                    });
+                    // Các request khác cần xác thực
+                    auth.anyRequest().authenticated();
+                })
+                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .addFilterBefore(new JWTAuthenticationFilter(jwtTokenHelper, userDetailsService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
     /**
      * Cấu hình WebSecurity để bỏ qua bảo mật cho các API công khai.
      *
@@ -69,6 +85,7 @@ public class WebSecurityConfig {
     public WebSecurityCustomizer webSecurityConfigurer() {
         return (web) -> web.ignoring().requestMatchers(publicApis);
     }
+
     /**
      * Cấu hình AuthenticationManager, sử dụng DaoAuthenticationProvider để xác thực người dùng.
      *
@@ -82,13 +99,14 @@ public class WebSecurityConfig {
 
         return new ProviderManager(daoAuthenticationProvider);
     }
+
     /**
      * Tạo một PasswordEncoder để mã hóa mật khẩu người dùng.
      *
      * @return PasswordEncoder sử dụng mã hóa mật khẩu.
      */
     @Bean
-    public PasswordEncoder passwordEncoder () {
+    public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 }

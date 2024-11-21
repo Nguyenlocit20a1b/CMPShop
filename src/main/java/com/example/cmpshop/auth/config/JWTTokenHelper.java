@@ -20,6 +20,8 @@ public class JWTTokenHelper {
     private String secretKey; // key
     @Value("${jwt.auth.expires_in}")
     private int expiresIn;// thời gian sống
+    private String header = "Authorization";
+    private String startAuthHeader = "Bearer ";
 
     /**
      * Sinh JWT token cho người dùng.
@@ -43,7 +45,7 @@ public class JWTTokenHelper {
      * @return Key đối tượng khóa bí mật đã được mã hóa bằng thuật toán HMAC-SHA.
      */
     private Key getSigningKey() {
-        byte[] keysBytes = Decoders.BASE64.decode(secretKey); // giải mã một chuỗi khóa bí mật từ định dạng base64
+        byte[] keysBytes = Decoders.BASE64.decode(secretKey); // giải mã một chuỗi khóa từ định dạng base64
         return Keys.hmacShaKeyFor(keysBytes); // tạo một đối tượng Key được mã hóa bằng thuật toán HMAC-SHA
     }
 
@@ -64,7 +66,7 @@ public class JWTTokenHelper {
      */
     public String getToken(HttpServletRequest request) {
         String authHeader = getAuthHeaderFromHeader(request);
-        if (null != authHeader && authHeader.startsWith("Bearer ")) {
+        if (null != authHeader && authHeader.startsWith(startAuthHeader)) {
             return authHeader.substring(7);
         }
         return authHeader;
@@ -121,7 +123,7 @@ public class JWTTokenHelper {
      * @return Giá trị của header "Authorization".
      */
     private String getAuthHeaderFromHeader(HttpServletRequest request) {
-        return request.getHeader("Authorization");
+        return request.getHeader(header);
     }
 
     /**

@@ -2,6 +2,8 @@ package com.example.cmpshop.auth.reponsitory;
 import com.example.cmpshop.auth.entities.PermissionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 import java.util.Set;
 /**
  * PermissionRepository để tương tác với cơ sở dữ liệu cho bảng PermissionEntity
@@ -24,4 +26,10 @@ public interface PermissionRepository extends JpaRepository<PermissionEntity, Lo
      * @return một Set<PermissionEntity> chứa các PermissionEntity phù hợp với các tên permission trong danh sách.
      */
     Set<PermissionEntity> findByNameIn(Set<String> permissionNames);
+    /**
+     * Tìm tất cả các Permission
+     *
+     * @return một List<PermissionEntity> chứa các PermissionEntity  trong danh sách.
+     */
+    List<PermissionEntity> findAll();
 }

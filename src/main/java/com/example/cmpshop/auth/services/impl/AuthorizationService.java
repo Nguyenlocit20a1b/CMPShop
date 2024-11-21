@@ -1,11 +1,9 @@
 package com.example.cmpshop.auth.services.impl;
 
+import com.example.cmpshop.auth.dto.request.PermissionRequest;
 import com.example.cmpshop.auth.dto.request.RoleRequest;
 import com.example.cmpshop.auth.dto.request.UpdateUserRolesRequest;
-import com.example.cmpshop.auth.entities.PermissionEntity;
-import com.example.cmpshop.auth.entities.RoleEntity;
-import com.example.cmpshop.auth.entities.RoleTypes;
-import com.example.cmpshop.auth.entities.UserEntity;
+import com.example.cmpshop.auth.entities.*;
 import com.example.cmpshop.auth.reponsitory.AuthorityRepository;
 import com.example.cmpshop.auth.reponsitory.PermissionRepository;
 import com.example.cmpshop.auth.reponsitory.UserDetailRepository;
@@ -40,7 +38,7 @@ public class AuthorizationService implements IAuthorizationService {
      */
     public Set<RoleEntity> getUserAuthority() {
         Set<RoleEntity> authorities = new HashSet<>();
-        Optional<RoleEntity> authority = authorityRepository.findByName(RoleTypes.USER);
+        Optional<RoleEntity> authority = authorityRepository.findByName(RoleEnum.USER.toString());
         if (authority.isPresent()) {
             authorities.add(authority.get());
         } else {
@@ -53,20 +51,27 @@ public class AuthorizationService implements IAuthorizationService {
     /**
      * Tạo mới một quyền (Permission) trong hệ thống.
      *
-     * @param name        Tên của quyền.
-     * @param description Mô tả chi tiết quyền.
+     * @param request đối tượng PermissionRequest chứa name, endPoint , method
      * @return Đối tượng PermissionEntity đã được lưu trữ.
      * @throws UnauthorizedException Nếu quyền đã tồn tại.
      */
-    public PermissionEntity createPermission(String name, String description) {
-        String permissionToSave = name.toUpperCase();
+    public PermissionEntity createPermission(PermissionRequest request) {
+        String permissionToSave = request.getName().toUpperCase();
+        String methodToSave = request.getMethod().toUpperCase();
+
         if (permissionRepository.existsByName(permissionToSave)) {
             log.warn("Quyền đã tồn tại, không tạo thêm: {}", permissionToSave);
             throw new UnauthorizedException("Quyền này đã tồn tại");
         }
+        // Kiểm tra method có hợp lệ không
+        if (!HttpMethodEnum.contains(methodToSave)) {
+            log.warn("Phương thức không hợp lệ: {}", methodToSave);
+            throw new IllegalArgumentException("Method không hợp lệ. Chỉ chấp nhận GET, POST, PUT, DELETE.");
+        }
         PermissionEntity permission = PermissionEntity.builder()
                 .name(permissionToSave)
-                .description(description)
+                .method(methodToSave)
+                .endPoint(request.getEndPoint())
                 .build();
         return permissionRepository.save(permission);
     }

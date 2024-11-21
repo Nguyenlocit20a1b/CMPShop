@@ -1,6 +1,6 @@
 package com.example.cmpshop.auth.entities;
 
-public enum ProviderTypes {
+public enum ProviderEnum {
     MANUAL,
     GOOGLE,
     FACEBOOK

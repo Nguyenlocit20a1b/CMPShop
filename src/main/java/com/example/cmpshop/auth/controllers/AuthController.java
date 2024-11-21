@@ -39,7 +39,7 @@ public class AuthController {
      */
     @Operation(summary = "User Registration", description = "Register a new user into the system.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "User successfully registered.",
+            @ApiResponse(responseCode = "201", description = "User successfully registered.",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RegisterResponse.class))}),
             @ApiResponse(responseCode = "400", description = "Invalid registration details or user already exists.",
                     content = @Content)
@@ -47,7 +47,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@RequestBody @Valid RegisterRequest request) {
         RegisterResponse registerResponse = authenticationService.createUser(request);
-        return new ResponseEntity<>(registerResponse, registerResponse.getCode() == 200 ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(registerResponse, (registerResponse != null) ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -65,7 +65,7 @@ public class AuthController {
     })
     @PostMapping("/verify")
     public ResponseEntity<?> verifyEmail(@RequestBody Map<String, String> map) {
-        String userName = map.get("userName");
+        String userName = map.get("email");
         String code = map.get("code");
         UserEntity user = (UserEntity) userDetailsService.loadUserByUsername(userName);
         if (null != user && user.getVerificationCode().equals(code)) {

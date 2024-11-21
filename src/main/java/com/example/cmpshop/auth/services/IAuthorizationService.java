@@ -1,5 +1,6 @@
 package com.example.cmpshop.auth.services;
 
+import com.example.cmpshop.auth.dto.request.PermissionRequest;
 import com.example.cmpshop.auth.dto.request.RoleRequest;
 import com.example.cmpshop.auth.dto.request.UpdateUserRolesRequest;
 import com.example.cmpshop.auth.entities.PermissionEntity;
@@ -22,11 +23,10 @@ public interface IAuthorizationService {
     /**
      * Tạo một permission mới trong hệ thống.
      *
-     * @param name Tên của permission (phải là duy nhất).
-     * @param description Mô tả ngắn gọn về permission.
+     * @param request đối tượng {@link PermissionRequest}
      * @return Một đối tượng PermissionEntity đại diện cho permission đã được tạo.
      */
-    PermissionEntity createPermission(String name, String description);
+    PermissionEntity createPermission(PermissionRequest request);
     /**
      * Tạo một role mới trong hệ thống và gắn kèm các permission cho role đó.
      *

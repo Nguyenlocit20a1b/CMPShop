@@ -1,4 +1,6 @@
 package com.example.cmpshop.auth.dto.response;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +19,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterResponse {
-    private int code ;
-    private String message;
+    private String firstName;
+    private String lastName;
+    private  String phoneNumber;
+    private String email;
+    private boolean enabled;
+
 }

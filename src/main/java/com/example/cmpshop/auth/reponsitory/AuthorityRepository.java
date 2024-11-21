@@ -1,5 +1,6 @@
 package com.example.cmpshop.auth.reponsitory;
 import com.example.cmpshop.auth.entities.RoleEntity;
+import com.example.cmpshop.auth.entities.RoleEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
@@ -14,10 +15,10 @@ public interface AuthorityRepository extends JpaRepository<RoleEntity, Long> {
     /**
      * Tìm một RoleEntity theo tên của Role.
      *
-     * @param user tên của role (dạng Enum) cần tìm kiếm.
+     * @param name tên của role (dạng Enum) cần tìm kiếm.
      * @return Optional<RoleEntity> chứa RoleEntity nếu tìm thấy, hoặc Optional.empty() nếu không tìm thấy.
      */
-    Optional<RoleEntity> findByName(Enum user);
+    Optional<RoleEntity> findByName(String name);
 
     /**
      * Kiểm tra xem một role có tồn tại trong cơ sở dữ liệu hay không dựa trên tên role.
