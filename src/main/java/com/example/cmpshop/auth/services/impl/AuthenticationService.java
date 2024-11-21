@@ -25,6 +25,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerErrorException;
+
+import java.io.File;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -33,7 +35,7 @@ import java.security.PublicKey;
 public class AuthenticationService implements IAuthenticationService {
     private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
     @Value("${keystorePath}")
-    private String keystorePath;
+    private String KEYSTORE_PATH;
     @Value("${keystorePassword}")
     private String keystorePassword;
     private PublicKey publicKey;
@@ -51,9 +53,21 @@ public class AuthenticationService implements IAuthenticationService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private AuthorizationService authorityService;
+
+    /**
+     * Phương thức khởi tạo cặp khóa RSA khi ứng dụng được khởi động.
+     * - Sử dụng annotation @PostConstruct để phương thức được gọi sau khi bean được khởi tạo.
+     * - Nếu tệp KeyStore không tồn tại, sẽ tạo mới và lưu cặp khóa vào đó.
+     * - Tải cặp khóa RSA từ KeyStore và gán vào các thuộc tính khóa công khai và khóa riêng tư của đối tượng.
+     *
+     * @throws Exception Nếu xảy ra lỗi trong quá trình tạo hoặc tải cặp khóa.
+     */
     @PostConstruct
     public void initializeKeys() throws Exception {
-        KeyPair keyPair = AsymmetricEncryption.generateRsaKeyPair();
+        if (!new File(KEYSTORE_PATH).exists()) {
+            AsymmetricEncryption.generateAndSaveKeys(KEYSTORE_PATH);
+        }
+        KeyPair keyPair = AsymmetricEncryption.loadKeys(KEYSTORE_PATH);
         this.publicKey = keyPair.getPublic();
         this.privateKey = keyPair.getPrivate();
     }
