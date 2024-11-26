@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
     }
     @ExceptionHandler(UnauthorizedException.class)
-    public  ResponseEntity<Map<String, Object>> handingUnauthorized(UnauthorizedException unauthorizedException) {
+    public  ResponseEntity<Map<String, Object>> unauthorizedException(UnauthorizedException unauthorizedException) {
         Map<String, Object> errorDetails = new HashMap<>();
         errorDetails.put("timestamp", LocalDateTime.now());
         errorDetails.put("status", HttpStatus.UNAUTHORIZED.value());
@@ -64,13 +64,31 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.UNAUTHORIZED);
     }
     @ExceptionHandler(AuthenticationFailedException.class)
-    public  ResponseEntity<Map<String, Object>> handingUnauthorized(AuthenticationFailedException authenticationFailedException) {
+    public  ResponseEntity<Map<String, Object>> authenticationFailedException(AuthenticationFailedException authenticationFailedException) {
         Map<String, Object> errorDetails = new HashMap<>();
         errorDetails.put("timestamp", LocalDateTime.now());
         errorDetails.put("status", HttpStatus.UNAUTHORIZED.value());
         errorDetails.put("error", "Data Access Exception");
         errorDetails.put("message", authenticationFailedException .getMessage());
         return new ResponseEntity<>(errorDetails, HttpStatus.UNAUTHORIZED);
+    }
+    @ExceptionHandler(DecryptionException.class)
+    public  ResponseEntity<Map<String, Object>> decryptionException(DecryptionException decryptionException) {
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("timestamp", LocalDateTime.now());
+        errorDetails.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        errorDetails.put("error", "Data Access Exception");
+        errorDetails.put("message", decryptionException.getMessage());
+        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    @ExceptionHandler(EncryptionException.class)
+    public  ResponseEntity<Map<String, Object>> encryptionException(EncryptionException encryptionException) {
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("timestamp", LocalDateTime.now());
+        errorDetails.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        errorDetails.put("error", "Data Access Exception");
+        errorDetails.put("message", encryptionException.getMessage());
+        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
 

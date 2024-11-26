@@ -1,4 +1,5 @@
 package com.example.cmpshop.convertor;
+import jakarta.persistence.Convert;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -6,9 +7,10 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 @Configuration
+@Convert
 public class AESEncryption implements AttributeConverter<String,String>{
     // Property name for the encryption password
-    private static final String ENCRYPTION_PASSWORD_PROPERTY = "jasypt.encryptor.password";
+    private static final String ENCRYPTION_PASSWORD_PROPERTY = "jasypt.encryptor.key";
 
     // Jasypt StringEncryptor để thực hiện mã hóa và giải mã
     private final StandardPBEStringEncryptor encryptor;

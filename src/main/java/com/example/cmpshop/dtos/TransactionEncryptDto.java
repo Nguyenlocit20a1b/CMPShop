@@ -14,5 +14,4 @@ public class TransactionEncryptDto {
     private String encryptedAccount;
     private String encryptedInDebt;
     private String encryptedHave;
-    private String encryptedTime;
 }

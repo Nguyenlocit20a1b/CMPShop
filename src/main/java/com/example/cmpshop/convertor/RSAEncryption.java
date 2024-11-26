@@ -5,6 +5,7 @@ import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import javax.crypto.Cipher;
@@ -53,7 +54,6 @@ public class RSAEncryption {
                 KEYSTORE_PASSWORD.toCharArray(),
                 certChain
         );
-
         // Save to file
         try (FileOutputStream fos = new FileOutputStream(keystoreFilePath)) {
             keyStore.store(fos, KEYSTORE_PASSWORD.toCharArray());

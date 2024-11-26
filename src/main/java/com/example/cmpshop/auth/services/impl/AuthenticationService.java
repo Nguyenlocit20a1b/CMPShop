@@ -10,14 +10,13 @@ import com.example.cmpshop.auth.helper.VerificationCodeGenerator;
 import com.example.cmpshop.auth.reponsitory.UserDetailRepository;
 import com.example.cmpshop.auth.services.IAuthenticationService;
 import com.example.cmpshop.convertor.RSAEncryption;
+import com.example.cmpshop.convertor.RSAKeyInitializer;
 import com.example.cmpshop.exceptions.AuthenticationFailedException;
 import com.example.cmpshop.exceptions.ResourceNotFoundEx;
 import com.example.cmpshop.exceptions.UnauthorizedException;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,8 +25,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerErrorException;
 
-import java.io.File;
-import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Optional;
@@ -35,12 +32,11 @@ import java.util.Optional;
 @Service
 public class AuthenticationService implements IAuthenticationService {
     private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
-    @Value("${keystorePath}")
-    private String KEYSTORE_PATH;
-    @Value("${keystorePassword}")
-    private String keystorePassword;
-    private PublicKey publicKey;
+
+    private final RSAKeyInitializer keyInitializer;
+    private final RSAEncryption rsaEncryption;
     private PrivateKey privateKey;
+    private PublicKey publicKey;
 
     @Autowired
     AuthenticationManager authenticationManager;
@@ -55,22 +51,11 @@ public class AuthenticationService implements IAuthenticationService {
     @Autowired
     private AuthorizationService authorityService;
 
-    /**
-     * Phương thức khởi tạo cặp khóa RSA khi ứng dụng được khởi động.
-     * - Sử dụng annotation @PostConstruct để phương thức được gọi sau khi bean được khởi tạo.
-     * - Nếu tệp KeyStore không tồn tại, sẽ tạo mới và lưu cặp khóa vào đó.
-     * - Tải cặp khóa RSA từ KeyStore và gán vào các thuộc tính khóa công khai và khóa riêng tư của đối tượng.
-     *
-     * @throws Exception Nếu xảy ra lỗi trong quá trình tạo hoặc tải cặp khóa.
-     */
-    @PostConstruct
-    public void initializeKeys() throws Exception {
-        if (!new File(KEYSTORE_PATH).exists()) {
-            RSAEncryption.generateAndSaveKeys(KEYSTORE_PATH);
-        }
-        KeyPair keyPair = RSAEncryption.loadKeys(KEYSTORE_PATH);
-        this.publicKey = keyPair.getPublic();
-        this.privateKey = keyPair.getPrivate();
+    public AuthenticationService(RSAKeyInitializer keyInitializer, RSAEncryption rsaEncryption) {
+        this.keyInitializer = keyInitializer;
+        this.rsaEncryption = rsaEncryption;
+        this.privateKey = keyInitializer.getPrivateKey();
+        this.publicKey = keyInitializer.getPublicKey();
     }
 
     /**

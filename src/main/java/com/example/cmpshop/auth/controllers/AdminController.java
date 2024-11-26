@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/admin")
 @RestController
 @SecurityRequirement(name = "bearerAuth")
+@Tag(name = "ADMIN_AUTH")
 public class AdminController {
     @Autowired
     AuthorizationService authorityService;

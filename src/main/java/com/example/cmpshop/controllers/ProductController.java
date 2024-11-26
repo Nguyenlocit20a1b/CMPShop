@@ -30,6 +30,7 @@ import java.util.List;
  * response (http code, message, data)**/
 @RestController
 @RequestMapping("api/public/search")
+@Tag(name = "PRODUCTS")
 public class ProductController {
     private final IProductService iProductService;
     //  ko cần phải khởi tạo IProductService
@@ -38,7 +39,7 @@ public class ProductController {
         this.iProductService = iProductService;
     }
 
-    @Tag(name = "search product ", description = "Get methods of filter products with options for APIs ")
+
     @Operation(summary = "Search products",
             description = "Search product list based on option such as slug, brand , price and year. Returned products are paginated.")
     @ApiResponses({
@@ -83,7 +84,6 @@ public class ProductController {
         return new ResponseEntity<>(productPage, HttpStatus.OK);
     }
 
-    @Tag(name = "search product advanced", description = "Get methods of filter products with options for APIs ")
     @Operation(summary = "Search advanced",
             description = "Search product list based on category id, category type id, status and address. Returned products are paginated.")
     @ApiResponses({
