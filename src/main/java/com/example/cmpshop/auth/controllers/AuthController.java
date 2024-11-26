@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.GeneralSecurityException;
 import java.util.Map;
 
 @RestController
@@ -64,12 +65,12 @@ public class AuthController {
                     content = @Content)
     })
     @PostMapping("/verify")
-    public ResponseEntity<?> verifyEmail(@RequestBody Map<String, String> map) {
-        String userName = map.get("email");
+    public ResponseEntity<?> verifyEmail(@RequestBody Map<String, String> map)  {
+        String phoneNumber = map.get("phoneNumber");
         String code = map.get("code");
-        UserEntity user = (UserEntity) userDetailsService.loadUserByUsername(userName);
+        UserEntity user = (UserEntity) userDetailsService.loadUserByUsername(phoneNumber);
         if (null != user && user.getVerificationCode().equals(code)) {
-            authenticationService.verifyUser(userName);
+            authenticationService.verifyUser(phoneNumber);
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -90,7 +91,7 @@ public class AuthController {
     })
     @PostMapping("/login")
     public ResponseEntity<UserToken> login(@RequestBody @Valid LoginRequest request) {
-        UserToken token = authenticationService.authenticateUser(request.getEmail(), request.getPassword());
+        UserToken token = authenticationService.authenticateUser(request.getPhoneNumber(), request.getPassword());
         return new ResponseEntity<>(token, token != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
     }
 }

@@ -11,7 +11,21 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+/**
+ * JWTTokenHelper là một lớp hỗ trợ quản lý các thao tác liên quan đến JWT (JSON Web Token),
+ * bao gồm việc cấu hình thông tin JWT, tạo, kiểm tra và phân tích token.
+ * JWS with
+ * Ký token: (phương thức generateToken) thông qua signWith.
+ * Xác thực token: (phương thức getAllClaimsFromToken) thông qua parseClaimsJws.
+ *
+ * Các thành phần chính:
+ * - `appName`: Tên của ứng dụng (lấy từ cấu hình).
+ * - `secretKey`: Khóa bí mật dùng để ký và xác thực token.
+ * - `expiresIn`: Thời gian sống của token (tính bằng giây).
+ * - `header`: Tên header mặc định dùng để truyền token (mặc định là "Authorization").
+ * - `startAuthHeader`: Chuỗi bắt đầu của token trong header (mặc định là "Bearer ").
 
+ */
 @Component
 public class JWTTokenHelper {
     @Value("${jwt.auth.app}")
@@ -20,8 +34,8 @@ public class JWTTokenHelper {
     private String secretKey; // key
     @Value("${jwt.auth.expires_in}")
     private int expiresIn;// thời gian sống
-    private String header = "Authorization";
-    private String startAuthHeader = "Bearer ";
+    private String header = "Authorization";// Header mặc định chứa token
+    private String startAuthHeader = "Bearer ";// Prefix mặc định của token trong header
 
     /**
      * Sinh JWT token cho người dùng.
@@ -80,12 +94,18 @@ public class JWTTokenHelper {
      * @return true nếu token hợp lệ, ngược lại false.
      */
     public Boolean validateToken(String token, UserDetails userDetails) {
-        final String userName = getUserNameFromToken(token);
-        return (
-                userName != null &&
-                        userName.equals(userDetails.getUsername()) &&
-                        !isTokenExpired(token)
-        );
+        if (token == null || userDetails == null) {
+            return false;
+        }
+        try {
+            final String userName = getUserNameFromToken(token);
+            // Kiểm tra các điều kiện: không null, khớp với userDetails và token chưa hết hạn thì true
+            return userName != null
+                    && userName.equals(userDetails.getUsername())
+                    && !isTokenExpired(token);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -95,6 +115,9 @@ public class JWTTokenHelper {
      * @return true nếu token đã hết hạn, ngược lại false.
      */
     private boolean isTokenExpired(String token) {
+        if (token == null || token.isEmpty()) {
+            return true; // Nếu token null hoặc rỗng, coi như đã hết hạn
+        }
         Date expireDate = getExpireDateToken(token);
         return expireDate.before(new Date());
     }

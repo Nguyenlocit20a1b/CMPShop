@@ -111,10 +111,10 @@ public class AuthorizationService implements IAuthorizationService {
      * @throws IllegalArgumentException  Nếu một số vai trò không tồn tại.
      */
     public UserDetails updateUserRoles(UpdateUserRolesRequest request) throws UsernameNotFoundException {
-        UserEntity user = userDetailRepository.findByEmail(request.getEmail());
-        if (user == null) {
-            log.warn("Không tìm thấy người dùng với email: {}", request.getEmail());
-            throw new UsernameNotFoundException("User Not Found with userName" + request.getEmail());
+        Optional<UserEntity> user = userDetailRepository.findByPhoneNumber(request.getPhoneNumber());
+        if (user.isEmpty()) {
+            log.warn("Không tìm thấy người dùng với email: {}", request.getPhoneNumber());
+            throw new UsernameNotFoundException("User Not Found with userName" + request.getPhoneNumber());
         }
         // Tìm các RoleEntities từ tên của role
         Set<RoleEntity> roles = authorityRepository.findByNameIn(request.getRoleNames());
@@ -122,8 +122,8 @@ public class AuthorizationService implements IAuthorizationService {
             throw new IllegalArgumentException("Một số role không tồn tại");
         }
         // Cập nhật vai trò cho người dùng
-        user.setAuthorities(roles);
-        UserEntity updatedUser = userDetailRepository.save(user);
+        user.get().setAuthorities(roles);
+        UserEntity updatedUser = userDetailRepository.save(user.get());
         return updatedUser;
     }
 

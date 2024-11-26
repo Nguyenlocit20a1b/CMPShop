@@ -4,6 +4,8 @@ import com.example.cmpshop.auth.dto.request.RegisterRequest;
 import com.example.cmpshop.auth.dto.response.RegisterResponse;
 import com.example.cmpshop.auth.dto.response.UserToken;
 
+import java.security.GeneralSecurityException;
+
 /**
  * Interface cung cấp các dịch vụ liên quan đến người dùng trong hệ thống.
  * Được sử dụng để định nghĩa các hành vi (operations) mà các lớp triển khai cần cung cấp.
@@ -30,7 +32,7 @@ public interface IAuthenticationService {
      * Xác minh người dùng dựa trên tên đăng nhập.
      * Thường được sử dụng trong quy trình kích hoạt tài khoản hoặc bảo mật.
      *
-     * @param userName tên đăng nhập của người dùng cần xác minh.
+     * @param phoneNumber tên đăng nhập của người dùng cần xác minh.
      */
-    void verifyUser(String userName);
+    void verifyUser(String phoneNumber) ;
 }

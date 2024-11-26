@@ -1,6 +1,6 @@
 package com.example.cmpshop.auth.entities;
 
-import com.example.cmpshop.convertor.StringCryptoConverter;
+import com.example.cmpshop.convertor.AESEncryption;
 import com.example.cmpshop.entities.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -42,6 +42,10 @@ public class UserEntity extends BaseEntity implements UserDetails {
     @Column(name = "firstName")
     private String firstName;
     @Column(name = "lastName")
+    /** Trường lastname di động được chú thích bằng
+     @Convert để sử dụng StringCryptoConverter để mã hóa và giải mã dữ liệu.
+     */
+    @Convert(converter = AESEncryption.class)
     private String lastName;
 
     @Column(length = 512 , nullable = false, unique = true)
@@ -49,9 +53,6 @@ public class UserEntity extends BaseEntity implements UserDetails {
     @Column(length =  512  , name = "email_signature")
     private String emailSignature; // Signature for email verification
 
-    /** Trường số điện thoại di động được chú thích bằng
-    @Convert để sử dụng StringCryptoConverter để mã hóa và giải mã dữ liệu. */
-    @Convert(converter = StringCryptoConverter.class)
     private String phoneNumber;
     @Column(name = "password", length = 255)
     @JsonIgnore
@@ -94,7 +95,7 @@ public class UserEntity extends BaseEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.email;
+        return this.phoneNumber;
     }
 
 }

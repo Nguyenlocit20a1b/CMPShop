@@ -5,6 +5,7 @@ import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.springframework.context.annotation.Configuration;
 
 import javax.crypto.Cipher;
 import java.io.FileInputStream;
@@ -15,8 +16,8 @@ import java.security.*;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Date;
-
-public class AsymmetricEncryption {
+@Configuration
+public class RSAEncryption {
     private static final String ALGORITHM = "RSA";
     private static final String FULL_ALGORITHM = "SHA256withRSA";
     private static final String CIPHER_TRANSFORMATION = "RSA/ECB/OAEPWithSHA-256AndMGF1Padding";
@@ -104,8 +105,9 @@ public class AsymmetricEncryption {
      * @param privateKey    Khóa riêng tư được sử dụng để giải mã.
      * @return Chuỗi dữ liệu gốc sau khi giải mã.
      * @throws GeneralSecurityException Nếu xảy ra lỗi trong quá trình giải mã.
+     * @throws IllegalArgumentException Data and private key must not be null.
      */
-    public static String decrypt(String encryptedData, PrivateKey privateKey) throws GeneralSecurityException {
+    public static String decrypt(String encryptedData, PrivateKey privateKey) throws Exception {
         if (encryptedData == null || privateKey == null) {
             throw new IllegalArgumentException("Encrypted data and private key must not be null");
         }
@@ -126,8 +128,9 @@ public class AsymmetricEncryption {
      * @param privateKey Khóa riêng tư được sử dụng để ký số.
      * @return Chuỗi chữ ký số dưới dạng Base64.
      * @throws GeneralSecurityException Nếu xảy ra lỗi trong quá trình ký số.
+     * @throws IllegalArgumentException Data and private key must not be null.
      */
-    public static String signData(String data, PrivateKey privateKey) throws GeneralSecurityException {
+    public static String signData(String data, PrivateKey privateKey) throws Exception {
         if (data == null || privateKey == null) {
             throw new IllegalArgumentException("Data and private key must not be null");
         }

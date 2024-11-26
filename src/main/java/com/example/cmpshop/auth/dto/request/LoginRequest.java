@@ -22,9 +22,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginRequest {
-    @NotEmpty(message = "Email cannot be empty")
-    @Email(message = "Email should be valid")
-    private String email;
+    @NotEmpty(message = "phone Number cannot be empty")
+    private String phoneNumber;
     @NotEmpty(message = "Password cannot be empty")
     private CharSequence password;
 }

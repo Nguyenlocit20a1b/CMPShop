@@ -14,8 +14,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class UpdateUserRolesRequest {
-    @NotEmpty(message = "Role name cannot be empty")
-    @Email(message = "Email should be valid")
-    private String email ;
+    @NotEmpty(message = "phone number cannot be empty")
+    private String phoneNumber ;
     private Set<String> roleNames;  // Danh sách tên các vai trò mà admin muốn gán cho người dùng
 }

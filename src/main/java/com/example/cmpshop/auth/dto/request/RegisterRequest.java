@@ -22,6 +22,7 @@ import lombok.NoArgsConstructor;
 public class RegisterRequest {
     private String firstName;
     private String lastName;
+    @NotEmpty(message = "Phone Number cannot be empty")
     private  String phoneNumber;
     @NotEmpty(message = "Email cannot be empty")
     @Email(message = "Email should be valid")

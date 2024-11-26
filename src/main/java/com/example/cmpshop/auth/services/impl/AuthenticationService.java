@@ -9,7 +9,7 @@ import com.example.cmpshop.auth.entities.UserEntity;
 import com.example.cmpshop.auth.helper.VerificationCodeGenerator;
 import com.example.cmpshop.auth.reponsitory.UserDetailRepository;
 import com.example.cmpshop.auth.services.IAuthenticationService;
-import com.example.cmpshop.convertor.AsymmetricEncryption;
+import com.example.cmpshop.convertor.RSAEncryption;
 import com.example.cmpshop.exceptions.AuthenticationFailedException;
 import com.example.cmpshop.exceptions.ResourceNotFoundEx;
 import com.example.cmpshop.exceptions.UnauthorizedException;
@@ -30,6 +30,7 @@ import java.io.File;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Optional;
 
 @Service
 public class AuthenticationService implements IAuthenticationService {
@@ -65,9 +66,9 @@ public class AuthenticationService implements IAuthenticationService {
     @PostConstruct
     public void initializeKeys() throws Exception {
         if (!new File(KEYSTORE_PATH).exists()) {
-            AsymmetricEncryption.generateAndSaveKeys(KEYSTORE_PATH);
+            RSAEncryption.generateAndSaveKeys(KEYSTORE_PATH);
         }
-        KeyPair keyPair = AsymmetricEncryption.loadKeys(KEYSTORE_PATH);
+        KeyPair keyPair = RSAEncryption.loadKeys(KEYSTORE_PATH);
         this.publicKey = keyPair.getPublic();
         this.privateKey = keyPair.getPrivate();
     }
@@ -75,55 +76,57 @@ public class AuthenticationService implements IAuthenticationService {
     /**
      * Xác thực người dùng bằng username và password, đồng thời sinh token JWT nếu xác thực thành công.
      *
-     * @param username Tên đăng nhập của người dùng.
+     * @param phoneNumber Tên đăng nhập của người dùng.
      * @param password Mật khẩu của người dùng.
      * @return Đối tượng UserToken chứa JWT token.
      * @throws UnauthorizedException         Nếu tài khoản chưa kích hoạt.
      * @throws AuthenticationFailedException Nếu xác thực thất bại.
      */
-    public UserToken authenticateUser(String username, CharSequence password) {
+    public UserToken authenticateUser(String phoneNumber, CharSequence password) {
         try {
             // Tạo đối tượng xác thực với username và password
-            Authentication authentication = new UsernamePasswordAuthenticationToken(username, password);
+            Authentication authentication = new UsernamePasswordAuthenticationToken(phoneNumber, password);
             // Gửi yêu cầu xác thực tới AuthenticationManager
             Authentication authenticationResponse = this.authenticationManager.authenticate(authentication);
             if (authenticationResponse.isAuthenticated()) {
                 UserEntity user = (UserEntity) authenticationResponse.getPrincipal();
                 if (!user.isEnabled()) { // kiểm tra nếu tài khoản chưa kích hoạt
-                    log.warn("Tài khoản chưa xác thực: {}", username);
+                    log.warn("Tài khoản chưa xác thực: {}", phoneNumber);
                     throw new UnauthorizedException("Tài khoản chưa xác thực");
                 }
                 // Tạo JWT token
-                String token = jwtTokenHelper.generateToken(user.getEmail());
+                String token = jwtTokenHelper.generateToken(phoneNumber);
                 UserToken userToken = UserToken.builder().token(token).build();
                 return userToken;
             }
         } catch (BadCredentialsException e) {
-            log.warn("Xác thực thất bại cho tài khoản: {}", username);
+            log.warn("Xác thực thất bại cho tài khoản: {}", phoneNumber);
             throw new AuthenticationFailedException("Tên người dùng hoặc mật khẩu không chính xác");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        log.error("Xác thực thất bại không rõ lý do cho tài khoản: {}", username);
+        log.error("Xác thực thất bại không rõ lý do cho tài khoản: {}", phoneNumber);
         throw new AuthenticationFailedException("Đăng nhập không thành công");
     }
 
     /**
-     * Tạo tài khoản người dùng mới và gửi email xác minh.
+     * Tạo tài khoản người dùng mới và gửi sđt xác minh.
      *
      * @param request Thông tin đăng ký từ người dùng (họ, tên, email, số điện thoại, mật khẩu).
      * @return Đối tượng RegisterResponse chứa mã phản hồi và thông điệp kết quả.
      * @throws ServerErrorException Nếu có lỗi trong quá trình tạo tài khoản.
      */
     public RegisterResponse createUser(RegisterRequest request) {
-        UserEntity userExisting = userDetailRepository.findByEmail(request.getEmail());
-        if (null != userExisting) {
+        Optional<UserEntity> userExisting = userDetailRepository.findByPhoneNumber(request.getPhoneNumber());
+        if (userExisting.isPresent()) {
             log.warn("Tài khoản đã tồn tại với email: {}", request.getEmail());
             throw new UnauthorizedException("Tài khoản đã tồn tại");
         }
         try {
             // Encrypt email
-            String encryptedEmail = AsymmetricEncryption.encrypt(request.getEmail(), publicKey);
+            String encryptedEmail = RSAEncryption.encrypt(request.getEmail(), publicKey);
             // Generate email signature
-            String emailSignature = AsymmetricEncryption.signData(request.getEmail(), privateKey);
+            String emailSignature = RSAEncryption.signData(request.getEmail(), privateKey);
 
             String code = VerificationCodeGenerator.generateCode();
             log.info("Generated verification code: {}", code);
@@ -159,22 +162,23 @@ public class AuthenticationService implements IAuthenticationService {
     /**
      * Kích hoạt tài khoản người dùng bằng cách xác minh email.
      *
-     * @param userName Email của người dùng cần xác minh.
+     * @param phoneNumber Email của người dùng cần xác minh.
      * @throws ResourceNotFoundEx Nếu không tìm thấy người dùng với email được cung cấp.
      */
-    public void verifyUser(String userName) {
-        UserEntity user = userDetailRepository.findByEmail(userName);
-        if (user == null) {
-            log.warn("Không tìm thấy người dùng với email: {}", userName);
-            throw new ResourceNotFoundEx("User not found with email: " + userName);
+    public void verifyUser(String phoneNumber)  {
+        // Encrypt email
+        Optional<UserEntity> user = userDetailRepository.findByPhoneNumber(phoneNumber);
+        if (user.isEmpty()) {
+            log.warn("Không tìm thấy người dùng với email: {}", phoneNumber);
+            throw new ResourceNotFoundEx("User not found with email: " + phoneNumber);
         }
-        user.setEnabled(true);
-        userDetailRepository.save(user);
-        log.info("Tài khoản với email {} đã được kích hoạt thành công", userName);
+        user.get().setEnabled(true);
+        userDetailRepository.save(user.get());
+        log.info("Tài khoản với email {} đã được kích hoạt thành công", phoneNumber);
     }
     // Method to decrypt email when needed
     public String decryptUserEmail(UserEntity user) throws Exception {
-        return AsymmetricEncryption.decrypt(user.getEmail(), privateKey);
+        return RSAEncryption.decrypt(user.getEmail(), privateKey);
     }
 
 }

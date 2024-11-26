@@ -31,6 +31,7 @@ public class WebSecurityConfig {
             "/swagger-ui/**",
             "/api/public/**",
             "/api/auth/**",
+            "/api/transactions/**"
     };
     @Autowired
     private UserDetailsService userDetailsService;
